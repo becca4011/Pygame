@@ -1,6 +1,6 @@
 import pygame
 import sys
-import time
+from time import sleep
 import random
 
 from pygame.locals import *
@@ -51,6 +51,7 @@ class Snake(object):
 
         #뱀이 자신의 몸통과 부딪히는 경우
         if new in self.positions[2:]:
+            game_over()
             self.create() #게임 다시 시작
         else:
             self.positions.insert(0, new) #새로 생긴 몸통을 추가
@@ -101,6 +102,26 @@ def show_info(length, speed, surface):
     
     surface.blit(text, pos)
 
+#화면에 메세지 출력
+def write_message(text):
+    global window
+    textfont = pygame.font.Font(None, 60)
+    text = textfont.render(text, True, (255, 0, 0))
+    textpos = text.get_rect() #메세지의 위치
+    textpos.center = (int(WINDOW_WIDTH / 2), int(WINDOW_HEIGHT / 2)) #메세지를 가운데에 출력
+    window.blit(text, textpos) #화면에 보이게 함
+    pygame.display.update()
+
+    pygame.mixer.music.stop() #배경음악 정지
+    gameover_sound.play()
+    sleep(7)
+    pygame.mixer.music.play(-1) #배경음악 다시 재생
+
+#게임 오버 메세지 출력
+def game_over():
+    global window
+    write_message('Game Over!')
+
 #초기화
 if __name__ == '__main__':
     snake = Snake()
@@ -118,6 +139,11 @@ if __name__ == '__main__':
     pygame.key.set_repeat(1, 40)
 
     window.blit(surface, (0, 0))
+
+    pygame.mixer.music.load('sound/8bit attempt.mp3') #배경음악
+    pygame.mixer.music.play(-1)
+    gameover_sound = pygame.mixer.Sound('sound/Funeral March.wav')
+    clock = pygame.time.Clock()
 
     while True:
         for event in pygame.event.get():
