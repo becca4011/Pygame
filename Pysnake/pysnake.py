@@ -16,6 +16,7 @@ WHITE = (255, 255, 255)
 GREEN = (0, 100, 0)
 ORANGE = (250, 150, 0)
 GRAY = (100, 100, 100)
+BLACK = (0, 0, 0)
 
 UP = (0, -1)
 DOWN = (0, 1)
@@ -53,6 +54,9 @@ class Snake(object):
         if new in self.positions[2:]:
             game_over()
             self.create() #게임 다시 시작
+        elif cur[0] == 2 * GRID_SIZE or cur[0] == 37 * GRID_SIZE  or cur[1] == 2 * GRID_SIZE  or cur[1] == 27 * GRID_SIZE :
+            game_over()
+            self.create()
         else:
             self.positions.insert(0, new) #새로 생긴 몸통을 추가
 
@@ -76,7 +80,8 @@ class Feed(object):
         self.create()
 
     def create(self):
-        self.position = (random.randint(0, GRID_WIDTH - 1) * GRID_SIZE, random.randint(0, GRID_HEIGHT - 1) * GRID_SIZE) #먹이 위치(랜덤)
+        #self.position = (random.randint(0, (GRID_WIDTH - 1)) * GRID_SIZE, random.randint(0, GRID_HEIGHT - 1) * GRID_SIZE)
+        self.position = (random.randint(3, 35) * GRID_SIZE, random.randint(3, 25) * GRID_SIZE) #먹이 위치(랜덤)
 
     def draw(self, surface):
         draw_object(surface, self.color, self.position)
@@ -89,23 +94,24 @@ def draw_object(surface, color, pos):
 #먹이를 먹었는지 여부
 def check_eat(snake, feed):
     if snake.positions[0] == feed.position: #뱀의 머리가 먹이의 위치와 같은 경우
+        eat_sound.play()
         snake.eat()
         feed.create() #먹이 다시 생성
 
 #뱀의 길이와 스피드 정보
 def show_info(length, speed, surface):
-    font = pygame.font.Font(None, 34)
+    font = pygame.font.Font('NanumGothic.ttf', 25)
     text = font.render("Length : " + str(length) + "    Speed : " + str(round(speed, 2)), True, GRAY) #round : 반올림
 
     pos = text.get_rect()
-    pos.centerx = 150
+    pos.center = (400, 25)
     
     surface.blit(text, pos)
 
 #화면에 메세지 출력
 def write_message(text):
     global window
-    textfont = pygame.font.Font(None, 60)
+    textfont = pygame.font.Font('NanumGothic.ttf', 60)
     text = textfont.render(text, True, (255, 0, 0))
     textpos = text.get_rect() #메세지의 위치
     textpos.center = (int(WINDOW_WIDTH / 2), int(WINDOW_HEIGHT / 2)) #메세지를 가운데에 출력
@@ -120,6 +126,8 @@ def write_message(text):
 #게임 오버 메세지 출력
 def game_over():
     global window
+    surface.fill(BLACK)
+    window.blit(surface, (0, 0))
     write_message('Game Over!')
 
 #초기화
@@ -142,6 +150,7 @@ if __name__ == '__main__':
 
     pygame.mixer.music.load('sound/8bit attempt.mp3') #배경음악
     pygame.mixer.music.play(-1)
+    eat_sound = pygame.mixer.Sound('sound/341695__projectsu012__coins-1.wav')
     gameover_sound = pygame.mixer.Sound('sound/Funeral March.wav')
     clock = pygame.time.Clock()
 
@@ -162,6 +171,7 @@ if __name__ == '__main__':
                     snake.control(RIGHT)
 
         surface.fill(WHITE)
+        pygame.draw.rect(surface, BLACK, [50, 50, 700, 500], 5)
         snake.move()
         check_eat(snake, feed)
         speed = (FPS + snake.length) / 2 #뱀의 길이가 길어질수록 빨라짐
