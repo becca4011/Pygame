@@ -4,9 +4,13 @@ from time import sleep
 import random
 
 from pygame.locals import *
+pygame.init() #초기화
 
 WINDOW_WIDTH = 800
 WINDOW_HEIGHT = 600
+
+window = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT), 0, 32) #화면 크기
+pygame.display.set_caption('Snake Game')
 
 GRID_SIZE = 20 #뱀을 표현할 때 1px은 작기 때문에 지정
 GRID_WIDTH = WINDOW_WIDTH / GRID_SIZE
@@ -24,6 +28,9 @@ LEFT = (-1, 0)
 RIGHT = (1, 0)
 
 FPS = 10
+
+eat_sound = pygame.mixer.Sound('sound/341695__projectsu012__coins-1.wav')
+gameover_sound = pygame.mixer.Sound('sound/Funeral March.wav')
 
 #뱀
 class Snake(object):
@@ -118,69 +125,78 @@ def write_message(text):
     window.blit(text, textpos) #화면에 보이게 함
     pygame.display.update()
 
+def music():
     pygame.mixer.music.stop() #배경음악 정지
     gameover_sound.play()
     sleep(7)
-    pygame.mixer.music.play(-1) #배경음악 다시 재생
+
+#게임 메인화면
+def main_page():
+    global window
+    window.blit(pygame.image.load('snake.png'), (0, 0))
+    pygame.display.update()
+    
+    sleep(3)
+    game()
 
 #게임 오버 메세지 출력
 def game_over():
     global window
-    surface.fill(BLACK)
-    window.blit(surface, (0, 0))
+    window.fill(BLACK)
+    window.blit(window, (0, 0))
     write_message('Game Over!')
+    music()
+    main_page()
 
 #초기화
-if __name__ == '__main__':
-    snake = Snake()
-    feed = Feed()
+def game():
+    if __name__ == '__main__':
+        snake = Snake()
+        feed = Feed()
     
-    pygame.init() #초기화
-    window = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT), 0, 32) #화면 크기
-    pygame.display.set_caption('Snake Game')
-
-    surface = pygame.Surface(window.get_size()) #window의 크기를 넣어줌
-    surface = surface.convert()
-    surface.fill(WHITE)
-
-    clock = pygame.time.Clock()
-    pygame.key.set_repeat(1, 40)
-
-    window.blit(surface, (0, 0))
-
-    pygame.mixer.music.load('sound/8bit attempt.mp3') #배경음악
-    pygame.mixer.music.play(-1)
-    eat_sound = pygame.mixer.Sound('sound/341695__projectsu012__coins-1.wav')
-    gameover_sound = pygame.mixer.Sound('sound/Funeral March.wav')
-    clock = pygame.time.Clock()
-
-    while True:
-        for event in pygame.event.get():
-            #게임 종료
-            if event.type == QUIT:
-                pygame.quit()
-                sys.exit()
-            elif event.type == KEYDOWN:
-                if event.key == K_UP:
-                    snake.control(UP)
-                elif event.key == K_DOWN:
-                    snake.control(DOWN)
-                elif event.key == K_LEFT:
-                    snake.control(LEFT)
-                elif event.key == K_RIGHT:
-                    snake.control(RIGHT)
-
+        surface = pygame.Surface(window.get_size()) #window의 크기를 넣어줌
+        surface = surface.convert()
         surface.fill(WHITE)
-        pygame.draw.rect(surface, BLACK, [50, 50, 700, 500], 5)
-        snake.move()
-        check_eat(snake, feed)
-        speed = (FPS + snake.length) / 2 #뱀의 길이가 길어질수록 빨라짐
-        show_info(snake.length, speed, surface) #정보
-        
-        snake.draw(surface)
-        feed.draw(surface)
+
+        clock = pygame.time.Clock()
+        pygame.key.set_repeat(1, 40)
+
         window.blit(surface, (0, 0))
-        pygame.display.flip()
-        pygame.display.update()
-        clock.tick(speed)
+
+        pygame.mixer.music.load('sound/8bit attempt.mp3') #배경음악
+        pygame.mixer.music.play(-1)
+        clock = pygame.time.Clock()
+
+        while True:
+            for event in pygame.event.get():
+                #게임 종료
+                if event.type == QUIT:
+                    pygame.quit()
+                    sys.exit()
+                elif event.type == KEYDOWN:
+                    if event.key == K_UP:
+                        snake.control(UP)
+                    elif event.key == K_DOWN:
+                        snake.control(DOWN)
+                    elif event.key == K_LEFT:
+                        snake.control(LEFT)
+                    elif event.key == K_RIGHT:
+                        snake.control(RIGHT)
+
+            surface.fill(WHITE)
+            pygame.draw.rect(surface, BLACK, [50, 50, 700, 500], 5)
+            snake.move()
+            check_eat(snake, feed)
+            speed = (FPS + snake.length) / 2 #뱀의 길이가 길어질수록 빨라짐
+            show_info(snake.length, speed, surface) #정보
+                
+            snake.draw(surface)
+            feed.draw(surface)
+            window.blit(surface, (0, 0))
+            pygame.display.flip()
+            pygame.display.update()
+            clock.tick(speed)
+
+main_page()
+
         
