@@ -133,11 +133,27 @@ def music():
 #게임 메인화면
 def main_page():
     global window
-    window.blit(pygame.image.load('snake.png'), (0, 0))
+    window.blit(pygame.image.load('image/snake.png'), (0, 0))
     pygame.display.update()
-    
-    sleep(3)
-    game()
+
+    #space를 누르면 게임 시작
+    while True:
+        for event in pygame.event.get():
+            if event.type in [pygame.KEYDOWN]:
+                if event.key == pygame.K_SPACE:
+                    window.blit(pygame.image.load('image/3.png'), (0, 0))
+                    pygame.display.update()
+                    sleep(1)
+
+                    window.blit(pygame.image.load('image/2.png'), (0, 0))
+                    pygame.display.update()
+                    sleep(1)
+
+                    window.blit(pygame.image.load('image/1.png'), (0, 0))
+                    pygame.display.update()
+                    sleep(1)
+                    
+                    game() #게임 시작
 
 #게임 오버 메세지 출력
 def game_over():
@@ -189,7 +205,6 @@ def game():
             check_eat(snake, feed)
             speed = (FPS + snake.length) / 2 #뱀의 길이가 길어질수록 빨라짐
             show_info(snake.length, speed, surface) #정보
-                
             snake.draw(surface)
             feed.draw(surface)
             window.blit(surface, (0, 0))
